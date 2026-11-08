@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "worker:email": "tsx --env-file-if-exists=.env src/workers/notification.worker.ts email",
     "worker:push": "tsx --env-file-if-exists=.env src/workers/notification.worker.ts push",
+    "test": "tsx --test tests/*.test.ts",
     "dev:web": "next dev",
     "db:dev": "tsx scripts/dev.ts --database-only",
     "db:test": "tsx scripts/dev.ts --test",
