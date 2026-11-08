@@ -5,11 +5,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm db:generate && next build",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
+    "db:deploy": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
     "format:check": "prettier --check ."
   },
   "dependencies": {
