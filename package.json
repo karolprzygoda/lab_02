@@ -10,6 +10,8 @@
     "lint": "eslint",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
+    "worker:email": "tsx --env-file-if-exists=.env src/workers/notification.worker.ts email",
+    "worker:push": "tsx --env-file-if-exists=.env src/workers/notification.worker.ts push",
     "db:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
