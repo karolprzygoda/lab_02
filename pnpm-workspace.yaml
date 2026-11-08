@@ -1,6 +1,9 @@
 packages: []
 
 allowBuilds:
+  "@prisma/engines": false
+  esbuild: false
+  msw: false
+  prisma: false
   sharp: true
   unrs-resolver: true
-  msw: false

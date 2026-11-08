@@ -5,3 +5,8 @@ node_modules/
 coverage/
 pnpm-lock.yaml
 .pnpm-store/
+prisma/generated
+data/
+.env*
+AGENTS.md
+CLAUDE.md
