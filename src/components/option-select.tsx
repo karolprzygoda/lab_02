@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Select,
   SelectContent,
@@ -13,14 +15,23 @@ export function OptionSelect({
   name,
   options,
   defaultValue,
+  onValueChange,
 }: {
   id: string
   name?: string
   options: readonly Option[]
+  onValueChange?: (value: string) => void
   defaultValue: string
 }) {
   return (
-    <Select name={name} defaultValue={defaultValue} items={options}>
+    <Select
+      onValueChange={(value) => {
+        if (value !== null) onValueChange?.(value)
+      }}
+      name={name}
+      defaultValue={defaultValue}
+      items={options}
+    >
       <SelectTrigger id={id} className="w-full">
         <SelectValue />
       </SelectTrigger>
