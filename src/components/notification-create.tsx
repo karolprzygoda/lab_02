@@ -1,6 +1,6 @@
 "use client"
 
-import { type ReactNode } from "react"
+import { createContext, useCallback, useState, type ReactNode } from "react"
 import { ScrollArea } from "./ui/scroll-area"
 import { Plus } from "lucide-react"
 import { Button } from "./ui/button"
@@ -22,7 +22,17 @@ import {
   DrawerClose,
 } from "./ui/drawer"
 
+export const NotificationCreateCloseContext = createContext<
+  (() => void) | null
+>(null)
+
 export function NotificationCreate({ children }: { children: ReactNode }) {
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const close = useCallback(() => {
+    setDialogOpen(false)
+    setDrawerOpen(false)
+  }, [])
   const trigger = (
     <Button>
       <Plus data-icon="inline-start" />
@@ -30,8 +40,12 @@ export function NotificationCreate({ children }: { children: ReactNode }) {
     </Button>
   )
   return (
-    <>
-      <Dialog disablePointerDismissal>
+    <NotificationCreateCloseContext.Provider value={close}>
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        disablePointerDismissal
+      >
         <DialogTrigger className="hidden md:inline-flex" render={trigger} />
         <DialogContent className="hidden max-h-[90dvh] flex-col overflow-hidden sm:max-w-xl md:flex">
           <DialogHeader>
@@ -45,7 +59,12 @@ export function NotificationCreate({ children }: { children: ReactNode }) {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-      <Drawer showSwipeHandle disablePointerDismissal>
+      <Drawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        showSwipeHandle
+        disablePointerDismissal
+      >
         <DrawerTrigger className="md:hidden" render={trigger} />
         <DrawerContent className="md:hidden">
           <DrawerHeader>
@@ -66,6 +85,6 @@ export function NotificationCreate({ children }: { children: ReactNode }) {
           </ScrollArea>
         </DrawerContent>
       </Drawer>
-    </>
+    </NotificationCreateCloseContext.Provider>
   )
 }

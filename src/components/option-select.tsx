@@ -1,5 +1,7 @@
 "use client"
 
+import type { Ref } from "react"
+
 import {
   Select,
   SelectContent,
@@ -15,13 +17,19 @@ export function OptionSelect({
   name,
   options,
   defaultValue,
+  value,
+  onBlur,
+  ref,
   onValueChange,
 }: {
   id: string
   name?: string
   options: readonly Option[]
   onValueChange?: (value: string) => void
-  defaultValue: string
+  defaultValue?: string
+  value?: string
+  onBlur?: () => void
+  ref?: Ref<HTMLButtonElement>
 }) {
   return (
     <Select
@@ -30,9 +38,10 @@ export function OptionSelect({
       }}
       name={name}
       defaultValue={defaultValue}
+      value={value}
       items={options}
     >
-      <SelectTrigger id={id} className="w-full">
+      <SelectTrigger ref={ref} onBlur={onBlur} id={id} className="w-full">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
