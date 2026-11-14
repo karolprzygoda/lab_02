@@ -31,7 +31,7 @@ export function NotificationCreate({ children }: { children: ReactNode }) {
   )
   return (
     <>
-      <Dialog>
+      <Dialog disablePointerDismissal>
         <DialogTrigger className="hidden md:inline-flex" render={trigger} />
         <DialogContent className="hidden max-h-[90dvh] flex-col overflow-hidden sm:max-w-xl md:flex">
           <DialogHeader>
@@ -45,7 +45,7 @@ export function NotificationCreate({ children }: { children: ReactNode }) {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-      <Drawer showSwipeHandle>
+      <Drawer showSwipeHandle disablePointerDismissal>
         <DrawerTrigger className="md:hidden" render={trigger} />
         <DrawerContent className="md:hidden">
           <DrawerHeader>
