@@ -5,6 +5,7 @@ import assert from "node:assert/strict"
 import { randomUUID } from "node:crypto"
 import { spawn, execFileSync } from "node:child_process"
 import { openDatabase } from "../src/server/db"
+import { notificationRevision } from "../src/server/services/notification-revision"
 import { DomainError } from "../src/server/validation/notification.schema"
 import { NotificationService } from "../src/server/services/notification.service"
 import {
@@ -191,6 +192,28 @@ test("pomijanie ciszy nocnej zachowuje termin, działa po przestoju i przy retry
     await service.tick("email", afterDowntime + 10_000)
     assert.equal((await service.repository.get(item.id))?.status, "sent")
   }
+})
+
+test("lekki odczyt zmian daje tę samą rewizję co lista i wykrywa retry", async () => {
+  const item = await service.create(input({ simulateFailures: 1 }), now)
+  const counts = await service.repository.counts()
+  const before = notificationRevision(await service.repository.list(), counts)
+  assert.equal(
+    notificationRevision(await service.repository.revisionItems(), counts),
+    before
+  )
+  await service.tick("email", due)
+  const afterCounts = await service.repository.counts()
+  const after = notificationRevision(
+    await service.repository.revisionItems(),
+    afterCounts
+  )
+  assert.notEqual(after, before)
+  assert.equal(
+    notificationRevision(await service.repository.list(), afterCounts),
+    after
+  )
+  assert.equal((await service.repository.get(item.id))?.status, "pending")
 })
 
 test("walidacja", async () => {

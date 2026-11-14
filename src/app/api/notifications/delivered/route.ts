@@ -18,7 +18,7 @@ export async function GET(request: Request) {
             orderBy: [{ sent_at: "asc" }, { id: "asc" }],
             select: { id: true, title: true, recipient: true, channel: true },
           }),
-      repository.list(),
+      repository.revisionItems(),
       repository.counts(),
     ])
     return Response.json(

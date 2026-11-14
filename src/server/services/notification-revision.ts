@@ -1,9 +1,15 @@
 import { createHash } from "node:crypto"
-import type { Notification } from "../repositories/notification.repository"
+type RevisionItem = {
+  id: string
+  status: string
+  attempts: number
+  available_at: number
+  sent_at: number | null
+}
 
 // Ignore heartbeats and other changes that cannot affect the notification view.
 export function notificationRevision(
-  items: Notification[],
+  items: RevisionItem[],
   counts: { status: string; count: number }[]
 ) {
   return createHash("sha256")

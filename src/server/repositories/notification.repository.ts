@@ -25,6 +25,24 @@ export class NotificationRepository {
     })
     return rows.map(notificationView)
   }
+  async revisionItems() {
+    const rows = await this.db.notification.findMany({
+      orderBy: [{ created_at: "desc" }, { id: "desc" }],
+      take: NOTIFICATION_LIST_LIMIT,
+      select: {
+        id: true,
+        status: true,
+        attempts: true,
+        available_at: true,
+        sent_at: true,
+      },
+    })
+    return rows.map((row) => ({
+      ...row,
+      available_at: row.available_at.getTime(),
+      sent_at: row.sent_at?.getTime() ?? null,
+    }))
+  }
   async get(id: string) {
     const row = await this.db.notification.findUnique({ where: { id } })
     return row ? notificationView(row) : null
@@ -51,6 +69,7 @@ export class NotificationRepository {
     return (
       await this.db.notification.groupBy({
         by: ["status"],
+        orderBy: { status: "asc" },
         _count: { _all: true },
       })
     ).map((row) => ({ status: row.status, count: row._count._all }))
