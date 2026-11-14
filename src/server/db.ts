@@ -15,10 +15,19 @@ export function openDatabase(url = env.DATABASE_URL) {
   })
 }
 const globalForPrisma = globalThis as unknown as {
-  notificationPrismaV2?: PrismaClient
+  notificationDatabase?: {
+    client: PrismaClient
+    constructor: typeof PrismaClient
+  }
 }
 export function getDatabase() {
-  return (globalForPrisma.notificationPrismaV2 ??= openDatabase())
+  const cached = globalForPrisma.notificationDatabase
+  // A regenerated client has a new constructor after development hot reload.
+  if (cached?.constructor === PrismaClient) return cached.client
+  const client = openDatabase()
+  globalForPrisma.notificationDatabase = { client, constructor: PrismaClient }
+  if (cached) void cached.client.$disconnect().catch(console.error)
+  return client
 }
 export type DbClient = Prisma.TransactionClient
 export type Database = PrismaClient
