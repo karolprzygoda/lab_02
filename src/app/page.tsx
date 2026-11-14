@@ -1,3 +1,4 @@
+import { z } from "zod"
 import { notificationRevision } from "@/server/services/notification-revision"
 import { DeliveredNotifications } from "@/components/delivered-notifications"
 import { NotificationDetailDialog } from "@/components/notification-detail-dialog"
@@ -22,10 +23,8 @@ export default async function Page({
     repository.workers(),
     repository.counts(),
   ])
-  const selected =
-    query.notification && /^[0-9a-f-]{36}$/i.test(query.notification)
-      ? await repository.get(query.notification)
-      : null
+  const notificationId = z.uuid().safeParse(query.notification)
+  const selected = notificationId.success ? await repository.get(notificationId.data) : null
   const selectedHistory = selected ? await repository.history(selected.id) : []
   const items = allItems.filter(
     (item) =>
