@@ -8,6 +8,7 @@ const WORKER_HEARTBEAT_TIMEOUT_MS = 15_000
 export function notificationView(row: Record) {
   return {
     ...row,
+    title: row.title ?? (row.content?.trim().slice(0, 200) || "Powiadomienie"),
     scheduled_at: row.scheduled_at.getTime(),
     available_at: row.available_at.getTime(),
     created_at: row.created_at.getTime(),

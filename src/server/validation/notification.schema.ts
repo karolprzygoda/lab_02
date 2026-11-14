@@ -5,6 +5,11 @@ export class DomainError extends Error {}
 export const notificationSchema = z
   .object({
     id: z.uuid(),
+    title: z
+      .string()
+      .trim()
+      .min(1, "Podaj tytuł powiadomienia.")
+      .max(200, "Tytuł może mieć do 200 znaków."),
     content: z
       .string()
       .trim()
@@ -12,6 +17,18 @@ export const notificationSchema = z
       .max(2000, "Treść może mieć do 2000 znaków."),
     recipient: z.string().trim().min(1, "Podaj odbiorcę.").max(254),
     channel: z.enum(["email", "push"]),
+    createdTimezone: z
+      .string()
+      .max(100)
+      .refine((value) => {
+        try {
+          new Intl.DateTimeFormat("pl", { timeZone: value })
+          return !/^[+-]/.test(value)
+        } catch {
+          return false
+        }
+      }, "Nie udało się ustalić strefy czasowej przeglądarki. Odśwież stronę.")
+      .default("UTC"),
     timezone: z
       .string()
       .max(100)

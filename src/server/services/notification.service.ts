@@ -33,6 +33,7 @@ export class NotificationService {
         update: {},
         create: {
           id: data.id,
+          title: data.title,
           content: data.content,
           recipient: data.recipient,
           channel: data.channel,
@@ -41,6 +42,7 @@ export class NotificationService {
           scheduled_at: new Date(scheduled),
           available_at: new Date(nextAllowedTime(scheduled, data.timezone)),
           created_at: new Date(now),
+          created_timezone: data.createdTimezone,
           simulate_failures: data.simulateFailures,
         },
       })

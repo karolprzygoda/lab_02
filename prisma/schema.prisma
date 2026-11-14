@@ -21,9 +21,11 @@ enum Status {
 }
 model Notification {
   id String @id @db.Uuid
+  title String @default("Powiadomienie") @db.VarChar(200)
   content String @db.VarChar(2000)
   recipient String @db.VarChar(254)
   channel Channel
+  created_timezone String?
   timezone String
   priority Priority
   scheduled_at DateTime @db.Timestamptz(3)

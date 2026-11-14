@@ -30,10 +30,12 @@ const now = Date.parse("2027-01-05T10:00Z"),
   due = now + 60_000
 const input = (overrides = {}) => ({
   id: randomUUID(),
+  title: "Testowe powiadomienie",
   content: "Przypomnienie",
   recipient: "test@example.com",
   channel: "email",
   timezone: "UTC",
+  createdTimezone: "Europe/Warsaw",
   priority: "low",
   scheduledLocal: "2027-01-05T10:01",
   simulateFailures: 0,
@@ -58,6 +60,10 @@ after(async () => {
 test("trwałość po ponownym połączeniu i idempotencja równoczesnych zgłoszeń", async () => {
   const data = input()
   await Promise.all([service.create(data, now), service.create(data, now)])
+  assert.equal(
+    (await service.repository.get(data.id))?.created_timezone,
+    "Europe/Warsaw"
+  )
   const other = openDatabase(testUrl),
     restarted = new NotificationService(other)
   try {
@@ -154,9 +160,12 @@ test("cisza nocna po przestoju oraz przy retry", async () => {
 
 test("walidacja", async () => {
   for (const overrides of [
+    { title: " " },
+    { title: "x".repeat(201) },
     { content: " " },
     { recipient: "bad" },
     { timezone: "Invalid/Zone" },
+    { createdTimezone: "Invalid/Zone" },
     { priority: "urgent" },
     { channel: "sms" },
     { simulateFailures: 4 },

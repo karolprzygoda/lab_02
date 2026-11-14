@@ -1,3 +1,4 @@
+import { CreationTimezone } from "./creation-timezone"
 import { randomUUID } from "node:crypto"
 import { Temporal } from "@js-temporal/polyfill"
 import { Moon, Send } from "lucide-react"
@@ -6,13 +7,6 @@ import { ActionForm } from "./action-form"
 import { OptionSelect } from "./option-select"
 import { ScheduleField } from "./schedule-field"
 import { TimezoneField } from "./timezone-field"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "./ui/card"
 import { Field, FieldGroup, FieldLabel } from "./ui/field"
 import { Input } from "./ui/input"
 import { Textarea } from "./ui/textarea"
@@ -58,95 +52,94 @@ export function NotificationForm() {
     .toString()
     .slice(0, 16)
   return (
-    <Card id="nowe">
-      <CardHeader>
-        <CardTitle>Nowe powiadomienie</CardTitle>
-        <CardDescription>
-          Wybierz odbiorcę, kanał i termin doręczenia.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ActionForm action={createNotification}>
-          <FieldGroup key={id}>
-            <input type="hidden" name="id" value={id} />
-            <Field>
-              <FieldLabel htmlFor="content">Treść wiadomości</FieldLabel>
-              <Textarea
-                id="content"
-                name="content"
-                required
-                maxLength={2000}
-                rows={4}
-                placeholder="Treść powiadomienia…"
-              />
-            </Field>
-            <FieldGroup className="grid sm:grid-cols-2">
-              <Field>
-                <FieldLabel htmlFor="new-channel">Kanał</FieldLabel>
-                <OptionSelect
-                  id="new-channel"
-                  name="channel"
-                  options={NOTIFICATION_CHANNELS}
-                  defaultValue="email"
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="priority">Priorytet</FieldLabel>
-                <OptionSelect
-                  id="priority"
-                  name="priority"
-                  options={NOTIFICATION_PRIORITIES}
-                  defaultValue="low"
-                />
-              </Field>
-            </FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="recipient">Odbiorca</FieldLabel>
-              <Input
-                id="recipient"
-                name="recipient"
-                required
-                maxLength={254}
-                placeholder="Adres e-mail lub identyfikator push"
-              />
-            </Field>
-            <TimezoneField
-              timezones={TIMEZONE_OPTIONS}
-              defaultValue={DEFAULT_TIMEZONE}
+    <ActionForm action={createNotification}>
+      <FieldGroup key={id}>
+        <input type="hidden" name="id" value={id} />
+        <CreationTimezone />
+        <Field>
+          <FieldLabel htmlFor="title">Tytuł powiadomienia</FieldLabel>
+          <Input
+            id="title"
+            name="title"
+            required
+            maxLength={200}
+            placeholder="Np. Przypomnienie o spotkaniu"
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="content">Treść wiadomości</FieldLabel>
+          <Textarea
+            id="content"
+            name="content"
+            required
+            maxLength={2000}
+            rows={4}
+            placeholder="Treść powiadomienia…"
+          />
+        </Field>
+        <FieldGroup className="grid sm:grid-cols-2">
+          <Field>
+            <FieldLabel htmlFor="new-channel">Kanał</FieldLabel>
+            <OptionSelect
+              id="new-channel"
+              name="channel"
+              options={NOTIFICATION_CHANNELS}
+              defaultValue="email"
             />
-            <ScheduleField defaultValue={defaultDate} />
-            <Alert>
-              <Moon />
-              <AlertTitle>Cisza nocna: 22:00–08:00</AlertTitle>
-              <AlertDescription>
-                Wiadomości zaplanowane na noc doręczymy o 08:00 czasu odbiorcy.
-              </AlertDescription>
-            </Alert>
-            <Accordion>
-              <AccordionItem value="simulation">
-                <AccordionTrigger>Opcje symulacji</AccordionTrigger>
-                <AccordionContent keepMounted>
-                  <Field>
-                    <FieldLabel htmlFor="failures">
-                      Początkowe awarie
-                    </FieldLabel>
-                    <OptionSelect
-                      id="failures"
-                      name="simulateFailures"
-                      options={SIMULATION_FAILURE_OPTIONS}
-                      defaultValue="0"
-                    />
-                  </Field>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-            <Button type="submit" className="w-full">
-              <Send data-icon="inline-start" />
-              Zaplanuj powiadomienie
-            </Button>
-          </FieldGroup>
-        </ActionForm>
-      </CardContent>
-    </Card>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="priority">Priorytet</FieldLabel>
+            <OptionSelect
+              id="priority"
+              name="priority"
+              options={NOTIFICATION_PRIORITIES}
+              defaultValue="low"
+            />
+          </Field>
+        </FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="recipient">Odbiorca</FieldLabel>
+          <Input
+            id="recipient"
+            name="recipient"
+            required
+            maxLength={254}
+            placeholder="Adres e-mail lub identyfikator push"
+          />
+        </Field>
+        <TimezoneField
+          timezones={TIMEZONE_OPTIONS}
+          defaultValue={DEFAULT_TIMEZONE}
+        />
+        <ScheduleField defaultValue={defaultDate} />
+        <Alert>
+          <Moon />
+          <AlertTitle>Cisza nocna: 22:00–08:00</AlertTitle>
+          <AlertDescription>
+            Wiadomości zaplanowane na noc doręczymy o 08:00 czasu odbiorcy.
+          </AlertDescription>
+        </Alert>
+        <Accordion>
+          <AccordionItem value="simulation">
+            <AccordionTrigger>Opcje symulacji</AccordionTrigger>
+            <AccordionContent keepMounted>
+              <Field>
+                <FieldLabel htmlFor="failures">Początkowe awarie</FieldLabel>
+                <OptionSelect
+                  id="failures"
+                  name="simulateFailures"
+                  options={SIMULATION_FAILURE_OPTIONS}
+                  defaultValue="0"
+                />
+              </Field>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        <Button type="submit" className="w-full">
+          <Send data-icon="inline-start" />
+          Zaplanuj powiadomienie
+        </Button>
+      </FieldGroup>
+    </ActionForm>
   )
 }

@@ -14,9 +14,11 @@ export function openDatabase(url = env.DATABASE_URL) {
     }),
   })
 }
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
+const globalForPrisma = globalThis as unknown as {
+  notificationPrismaV2?: PrismaClient
+}
 export function getDatabase() {
-  return (globalForPrisma.prisma ??= openDatabase())
+  return (globalForPrisma.notificationPrismaV2 ??= openDatabase())
 }
 export type DbClient = Prisma.TransactionClient
 export type Database = PrismaClient
