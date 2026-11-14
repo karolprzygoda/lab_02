@@ -59,3 +59,100 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Semantic notification colors shared by table badges. */
+:root {
+  --notification-success: oklch(0.48 0.12 155);
+  --notification-waiting: oklch(0.55 0.12 75);
+  --notification-email: oklch(0.53 0.15 255);
+  --notification-push: oklch(0.55 0.17 300);
+}
+.dark {
+  --notification-success: oklch(0.78 0.14 155);
+  --notification-waiting: oklch(0.8 0.13 80);
+  --notification-email: oklch(0.76 0.12 255);
+  --notification-push: oklch(0.78 0.13 300);
+}
+.notification-status[data-status="sent"] {
+  color: var(--notification-success);
+  background: color-mix(in oklch, var(--notification-success) 10%, transparent);
+  border-color: color-mix(
+    in oklch,
+    var(--notification-success) 35%,
+    transparent
+  );
+}
+.notification-status[data-status="pending"] {
+  color: var(--notification-waiting);
+  background: color-mix(in oklch, var(--notification-waiting) 10%, transparent);
+  border-color: color-mix(
+    in oklch,
+    var(--notification-waiting) 35%,
+    transparent
+  );
+}
+.notification-status[data-status="failed"] {
+  color: var(--destructive);
+  background: color-mix(in oklch, var(--destructive) 10%, transparent);
+  border-color: color-mix(in oklch, var(--destructive) 35%, transparent);
+}
+.notification-status[data-status="cancelled"] {
+  color: var(--muted-foreground);
+  background: var(--muted);
+}
+.notification-channel[data-channel="email"] {
+  color: var(--notification-email);
+  border-color: var(--notification-email);
+}
+.notification-channel[data-channel="push"] {
+  color: var(--notification-push);
+  border-color: var(--notification-push);
+}
+
+.notification-priority[data-priority="high"] {
+  color: var(--notification-waiting);
+  background: color-mix(in oklch, var(--notification-waiting) 10%, transparent);
+  border-color: color-mix(
+    in oklch,
+    var(--notification-waiting) 35%,
+    transparent
+  );
+}
+.notification-priority[data-priority="low"] {
+  color: var(--notification-email);
+  background: color-mix(in oklch, var(--notification-email) 10%, transparent);
+  border-color: color-mix(in oklch, var(--notification-email) 35%, transparent);
+}
+
+.notification-table[data-hidden~="title"] [data-column="title"] {
+  display: none;
+}
+
+.notification-table[data-hidden~="recipient"] [data-column="recipient"] {
+  display: none;
+}
+
+.notification-table[data-hidden~="channel"] [data-column="channel"] {
+  display: none;
+}
+
+.notification-table[data-hidden~="priority"] [data-column="priority"] {
+  display: none;
+}
+
+.notification-table[data-hidden~="status"] [data-column="status"] {
+  display: none;
+}
+
+.notification-table[data-hidden~="created"] [data-column="created"] {
+  display: none;
+}
+
+.notification-table[data-hidden~="scheduled"] [data-column="scheduled"] {
+  display: none;
+}
+
+.notification-table[data-hidden~="attempts"] [data-column="attempts"] {
+  display: none;
+}
+

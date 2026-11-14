@@ -1,21 +1,22 @@
+import { NotificationDetails } from "./notification-details"
+import { NotificationTime } from "./notification-time"
 import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "./ui/accordion"
-import { changeNotification } from "@/server/actions"
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "./ui/tooltip"
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "./ui/table"
+import { Dialog, DialogTrigger } from "./ui/dialog"
 import { notifications } from "@/server/api/context"
 import type { Notification } from "@/server/repositories/notification.repository"
-import { ActionForm } from "./action-form"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "./ui/card"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import {
@@ -25,16 +26,33 @@ import {
   EmptyDescription,
   EmptyMedia,
 } from "./ui/empty"
-import { Separator } from "./ui/separator"
 import { Bell, Mail, Smartphone } from "lucide-react"
 
-function date(timestamp: number, timezone: string) {
-  return new Intl.DateTimeFormat("pl-PL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: timezone,
-  }).format(timestamp)
+const CELL_TEXT_LIMIT = 30
+
+function TruncatedCellText({ value }: { value?: string | null }) {
+  const text = value ?? "—"
+  const characters = Array.from(text)
+  if (characters.length <= CELL_TEXT_LIMIT) {
+    return <span className="inline-block whitespace-nowrap">{text}</span>
+  }
+  return (
+    <>
+      <span className="whitespace-nowrap xl:hidden">{text}</span>
+      <span className="hidden xl:inline">
+        <Tooltip>
+          <TooltipTrigger className="cursor-help rounded-sm whitespace-nowrap">
+            {characters.slice(0, CELL_TEXT_LIMIT).join("")}...
+          </TooltipTrigger>
+          <TooltipContent className="break-all whitespace-normal">
+            {text}
+          </TooltipContent>
+        </Tooltip>
+      </span>
+    </>
+  )
 }
+
 const NOTIFICATION_STATUS_LABELS = {
   pending: "W kolejce",
   sent: "Doręczono",
@@ -62,119 +80,104 @@ export async function NotificationList({ items }: { items: Notification[] }) {
     items.map((item) => notifications().repository.history(item.id))
   )
   return (
-    <div className="flex flex-col gap-4">
-      {items.map((item, index) => (
-        <Card key={item.id}>
-          <CardHeader>
-            <div className="mb-2 flex flex-wrap gap-2">
-              <Badge variant="outline">
-                {item.channel === "email" ? <Mail /> : <Smartphone />}
-                {item.channel === "email" ? "E-mail" : "Push"}
-              </Badge>
-              {item.priority === "high" ? (
-                <Badge variant="secondary">Wysoki priorytet</Badge>
-              ) : null}
-              <Badge
-                variant={
-                  item.status === "failed"
-                    ? "destructive"
-                    : item.status === "sent"
-                      ? "default"
-                      : "secondary"
-                }
-              >
-                {NOTIFICATION_STATUS_LABELS[item.status]}
-              </Badge>
-            </div>
-            <CardTitle className="break-all">{item.recipient}</CardTitle>
-            <CardDescription className="break-words whitespace-pre-wrap">
-              {item.content}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <dl className="grid gap-4 text-sm sm:grid-cols-2">
-              <div>
-                <dt className="text-muted-foreground">
-                  {item.sent_at ? "Doręczono" : "Termin realizacji"}
-                </dt>
-                <dd className="mt-1">
-                  {date(item.sent_at ?? item.available_at, item.timezone)}
-                </dd>
-                <dd className="mt-1 text-xs break-all text-muted-foreground">
-                  {item.timezone}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Próby doręczenia</dt>
-                <dd className="mt-1">{item.attempts} / 3</dd>
-                <dd className="mt-1 text-xs text-muted-foreground">
-                  {item.forced ? "Wysyłka wymuszona" : "Z ochroną ciszy nocnej"}
-                </dd>
-              </div>
-            </dl>
-            {item.available_at !== item.scheduled_at ? (
-              <p className="text-xs text-muted-foreground">
-                Pierwotny termin: {date(item.scheduled_at, item.timezone)}
-              </p>
-            ) : null}
-            <Separator />
-            <Accordion>
-              <AccordionItem value="history">
-                <AccordionTrigger>Historia i identyfikator</AccordionTrigger>
-                <AccordionContent>
-                  <p className="my-3 font-mono text-xs break-all text-muted-foreground">
-                    {item.id}
-                  </p>
-                  {histories[index].length ? (
-                    <ol className="flex flex-col gap-2">
-                      {histories[index].map((entry) => (
-                        <li key={entry.number}>
-                          {entry.number}.{" "}
-                          {date(entry.happened_at, item.timezone)} ·{" "}
-                          {entry.outcome}
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      Nie podjęto jeszcze próby doręczenia.
-                    </p>
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </CardContent>
-          {item.status === "pending" ? (
-            <CardFooter>
-              <ActionForm action={changeNotification} className="w-full">
-                <input type="hidden" name="id" value={item.id} />
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="submit"
-                    name="action"
-                    value="send-now"
-                    size="sm"
-                  >
-                    Wyślij teraz
-                  </Button>
-                  <Button
-                    type="submit"
-                    name="action"
-                    value="cancel"
-                    size="sm"
+    <TooltipProvider>
+      <div className="min-w-0 rounded-xl border">
+        <Table className="[&_td]:text-center [&_td:not(:last-child)]:border-r [&_th]:text-center [&_th:not(:last-child)]:border-r">
+          <TableHeader>
+            <TableRow>
+              {[
+                ["title", "Tytuł"],
+                ["recipient", "Odbiorca"],
+                ["channel", "Typ kanału"],
+                ["priority", "Priorytet"],
+                ["status", "Status"],
+                ["created", "Termin utworzenia"],
+                ["scheduled", "Planowany termin realizacji"],
+                ["attempts", "Próby doręczenia"],
+                ["details", "Szczegóły"],
+              ].map(([key, label]) => (
+                <TableHead key={key} data-column={key}>
+                  {label}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((item, index) => (
+              <TableRow key={item.id}>
+                <TableCell data-column="title">
+                  <TruncatedCellText value={item.title} />
+                </TableCell>
+                <TableCell data-column="recipient">
+                  <TruncatedCellText value={item.recipient} />
+                </TableCell>
+                <TableCell data-column="channel">
+                  <Badge
                     variant="outline"
+                    data-channel={item.channel}
+                    className="notification-channel"
                   >
-                    Anuluj wysyłkę
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  „Wyślij teraz” pomija termin i ciszę nocną odbiorcy.
-                </p>
-              </ActionForm>
-            </CardFooter>
-          ) : null}
-        </Card>
-      ))}
-    </div>
+                    {item.channel === "email" ? <Mail /> : <Smartphone />}
+                    {item.channel === "email" ? "E-mail" : "Push"}
+                  </Badge>
+                </TableCell>
+                <TableCell data-column="priority">
+                  <Badge
+                    variant="outline"
+                    className="notification-priority"
+                    data-priority={item.priority}
+                  >
+                    {item.priority === "high" ? "Wysoki" : "Niski"}
+                  </Badge>
+                </TableCell>
+                <TableCell data-column="status">
+                  <Badge
+                    variant="outline"
+                    data-status={item.status}
+                    className="notification-status"
+                  >
+                    {NOTIFICATION_STATUS_LABELS[item.status]}
+                  </Badge>
+                </TableCell>
+                <TableCell data-column="created">
+                  <NotificationTime
+                    timestamp={item.created_at}
+                    timezone={item.created_timezone ?? "UTC"}
+                    timezoneLabel={
+                      item.created_timezone
+                        ? "Strefa czasowa autora"
+                        : "Strefa autora nieznana — wyświetlono w UTC"
+                    }
+                  />
+                </TableCell>
+                <TableCell data-column="scheduled">
+                  <NotificationTime
+                    timestamp={item.available_at}
+                    timezone={item.timezone}
+                  />
+                </TableCell>
+                <TableCell data-column="attempts">
+                  {item.attempts} / 3
+                </TableCell>
+                <TableCell data-column="details">
+                  <Dialog>
+                    <DialogTrigger
+                      render={<Button variant="outline" size="sm" />}
+                      aria-label={`Szczegóły powiadomienia do ${item.recipient}`}
+                    >
+                      Szczegóły
+                    </DialogTrigger>
+                    <NotificationDetails
+                      item={item}
+                      history={histories[index]}
+                    />
+                  </Dialog>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </TooltipProvider>
   )
 }
