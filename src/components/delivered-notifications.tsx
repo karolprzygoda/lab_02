@@ -11,10 +11,15 @@ type Delivery = {
   channel: string
 }
 
-export function DeliveredNotifications() {
+export function DeliveredNotifications({
+  initialRevision,
+}: {
+  initialRevision: string
+}) {
   const router = useRouter()
   const startedAt = useRef(0)
   const seen = useRef(new Set<string>())
+  const revision = useRef(initialRevision)
   useEffect(() => {
     let stopped = false
     let timer: ReturnType<typeof setTimeout>
@@ -27,10 +32,15 @@ export function DeliveredNotifications() {
           { cache: "no-store", signal: controller.signal }
         )
         if (!response.ok) throw new Error("Delivery polling failed")
-        const data: { since: number; items: Delivery[] } = await response.json()
+        const data: { since: number; items: Delivery[]; revision: string } =
+          await response.json()
         const items = data.items
         startedAt.current = data.since
         if (stopped) return
+        if (revision.current !== data.revision) {
+          revision.current = data.revision
+          router.refresh()
+        }
         if (errorToast) {
           toast.close(errorToast)
           errorToast = undefined

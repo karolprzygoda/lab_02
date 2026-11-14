@@ -1,3 +1,4 @@
+import { notificationRevision } from "@/server/services/notification-revision"
 import { DeliveredNotifications } from "@/components/delivered-notifications"
 import { NotificationDetailDialog } from "@/components/notification-detail-dialog"
 import { NotificationDetails } from "@/components/notification-details"
@@ -38,7 +39,9 @@ export default async function Page({
   return (
     <div className="min-h-screen">
       <main className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-6 px-4 py-8 sm:px-8">
-        <DeliveredNotifications />
+        <DeliveredNotifications
+          initialRevision={notificationRevision(allItems, counts)}
+        />
         {selected ? (
           <NotificationDetailDialog key={selected.id} linked>
             <NotificationDetails item={selected} history={selectedHistory} />
