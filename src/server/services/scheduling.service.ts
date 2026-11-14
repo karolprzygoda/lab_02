@@ -7,9 +7,11 @@ export function localToInstant(local: string, timezone: string) {
       disambiguation: "reject",
     }).epochMilliseconds
   } catch {
-    throw new DomainError(
-      "Niepoprawna lub niejednoznaczna godzina przy zmianie czasu. Wybierz inną godzinę."
-    )
+    throw new DomainError("Sprawdź termin doręczenia.", {
+      scheduledLocal: [
+        "Niepoprawna lub niejednoznaczna godzina przy zmianie czasu. Wybierz inną godzinę.",
+      ],
+    })
   }
 }
 

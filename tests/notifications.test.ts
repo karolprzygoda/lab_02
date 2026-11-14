@@ -5,6 +5,7 @@ import assert from "node:assert/strict"
 import { randomUUID } from "node:crypto"
 import { spawn, execFileSync } from "node:child_process"
 import { openDatabase } from "../src/server/db"
+import { DomainError } from "../src/server/validation/notification.schema"
 import { NotificationService } from "../src/server/services/notification.service"
 import {
   localToInstant,
@@ -207,6 +208,47 @@ test("walidacja", async () => {
     { scheduledLocal: "2020-01-01T10:00" },
   ])
     await assert.rejects(() => service.create(input(overrides), now))
+})
+
+test("błędy walidacji wskazują pola, a termin za dwie minuty jest poprawny", async () => {
+  await assert.rejects(
+    () => service.create(input({ recipient: "zły-adres" }), now),
+    (error) => {
+      assert.ok(error instanceof DomainError)
+      assert.deepEqual(Object.keys(error.fieldErrors), ["recipient"])
+      return true
+    }
+  )
+  await assert.rejects(
+    () => service.create(input({ scheduledLocal: "2027-01-05T09:59" }), now),
+    (error) => {
+      assert.ok(error instanceof DomainError)
+      assert.ok(error.fieldErrors.scheduledLocal?.length)
+      return true
+    }
+  )
+  await assert.rejects(
+    () =>
+      service.create(
+        input({
+          timezone: "Europe/Warsaw",
+          scheduledLocal: "2027-03-28T02:30",
+        }),
+        now
+      ),
+    (error) => {
+      assert.ok(error instanceof DomainError)
+      assert.ok(error.fieldErrors.scheduledLocal?.length)
+      return true
+    }
+  )
+  assert.equal(await db.notification.count(), 0)
+  const item = await service.create(
+    input({ scheduledLocal: "2027-01-05T10:02", ignoreQuietHours: "on" }),
+    now
+  )
+  assert.equal(item.scheduled_at, now + 120_000)
+  assert.equal(item.ignore_quiet_hours, true)
 })
 
 test("błąd zapisu doręczenia wycofuje całą transakcję", async () => {

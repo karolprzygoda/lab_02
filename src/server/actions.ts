@@ -3,7 +3,11 @@ import { revalidatePath } from "next/cache"
 import { notifications } from "@/server/api/context"
 import { DomainError } from "@/server/validation/notification.schema"
 
-export type ActionState = { error?: string; success?: string }
+export type ActionState = {
+  error?: string
+  success?: string
+  fieldErrors?: Record<string, string[]>
+}
 
 export async function createNotification(
   _state: ActionState,
@@ -12,7 +16,8 @@ export async function createNotification(
   try {
     await notifications().create(Object.fromEntries(data))
   } catch (error) {
-    if (error instanceof DomainError) return { error: error.message }
+    if (error instanceof DomainError)
+      return { error: error.message, fieldErrors: error.fieldErrors }
     console.error(error)
     return { error: "Nie udało się zapisać powiadomienia. Spróbuj ponownie." }
   }
@@ -29,7 +34,8 @@ export async function changeNotification(
   try {
     await notifications().change(String(data.get("id")), action)
   } catch (error) {
-    if (error instanceof DomainError) return { error: error.message }
+    if (error instanceof DomainError)
+      return { error: error.message, fieldErrors: error.fieldErrors }
     console.error(error)
     return { error: "Nie udało się zmienić powiadomienia." }
   }

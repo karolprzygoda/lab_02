@@ -19,14 +19,24 @@ export class NotificationService {
     const result = notificationSchema.safeParse(input)
     if (!result.success)
       throw new DomainError(
-        result.error.issues.map((issue) => issue.message).join(" ")
+        "Sprawdź zaznaczone pola.",
+        result.error.issues.reduce<Record<string, string[]>>(
+          (errors, issue) => {
+            const field = String(issue.path[0] ?? "")
+            ;(errors[field] ??= []).push(issue.message)
+            return errors
+          },
+          {}
+        )
       )
     const data = result.data
     const existing = await this.repository.get(data.id)
     if (existing) return existing
     const scheduled = localToInstant(data.scheduledLocal, data.timezone)
     if (scheduled <= now)
-      throw new DomainError("Termin musi przypadać w przyszłości.")
+      throw new DomainError("Sprawdź termin doręczenia.", {
+        scheduledLocal: ["Termin musi przypadać w przyszłości."],
+      })
     return notificationView(
       await this.db.notification.upsert({
         where: { id: data.id },
