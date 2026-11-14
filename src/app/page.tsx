@@ -18,14 +18,16 @@ export default async function Page({
   await connection()
   const query = await searchParams
   const repository = notifications().repository
-  const [allItems, workers, counts] = await Promise.all([
-    repository.list(),
-    repository.workers(),
-    repository.counts(),
-  ])
   const notificationId = z.uuid().safeParse(query.notification)
-  const selected = notificationId.success ? await repository.get(notificationId.data) : null
-  const selectedHistory = selected ? await repository.history(selected.id) : []
+  const selectedId = notificationId.success ? notificationId.data : null
+  const [allItems, workers, counts, selected, selectedHistory] =
+    await Promise.all([
+      repository.list(),
+      repository.workers(),
+      repository.counts(),
+      selectedId ? repository.get(selectedId) : Promise.resolve(null),
+      selectedId ? repository.history(selectedId) : Promise.resolve([]),
+    ])
   const items = allItems.filter(
     (item) =>
       (!query.status ||
