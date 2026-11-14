@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toast"
 import type { Metadata } from "next"
 import "./globals.css"
 
@@ -12,6 +13,7 @@ export default function RootLayout({
     <html lang="pl" className="dark scheme-dark">
       <body className="bg-background font-sans text-foreground antialiased">
         {children}
+        <Toaster />
       </body>
     </html>
   )

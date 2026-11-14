@@ -17,7 +17,7 @@ export async function createNotification(
     return { error: "Nie udało się zapisać powiadomienia. Spróbuj ponownie." }
   }
   revalidatePath("/")
-  return { success: "Powiadomienie zapisane. Zaplanuj kolejne poniżej." }
+  return { success: "Powiadomienie zostało utworzone." }
 }
 export async function changeNotification(
   _state: ActionState,

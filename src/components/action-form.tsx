@@ -1,8 +1,8 @@
 "use client"
-import { useActionState, type ReactNode } from "react"
+import { useActionState, useEffect, useRef, type ReactNode } from "react"
 import type { ActionState } from "@/server/actions"
 import { Form } from "./ui/form"
-import { Alert, AlertDescription } from "./ui/alert"
+import { toast } from "./ui/toast"
 
 export function ActionForm({
   action,
@@ -14,6 +14,18 @@ export function ActionForm({
   className?: string
 }) {
   const [state, formAction, pending] = useActionState(action, {})
+  const lastState = useRef(state)
+  useEffect(() => {
+    if (lastState.current === state) return
+    lastState.current = state
+    if (state.error)
+      toast.add({
+        type: "error",
+        title: "Nie udało się wykonać operacji",
+        description: state.error,
+      })
+    else if (state.success) toast.add({ type: "success", title: state.success })
+  }, [state])
   return (
     <Form action={formAction} className={className}>
       <fieldset
@@ -25,11 +37,6 @@ export function ActionForm({
       <div aria-live="polite" role="status" className="mt-3">
         {pending ? (
           <p className="text-sm text-muted-foreground">Zapisywanie…</p>
-        ) : null}
-        {state.error || state.success ? (
-          <Alert variant={state.error ? "destructive" : "default"}>
-            <AlertDescription>{state.error ?? state.success}</AlertDescription>
-          </Alert>
         ) : null}
       </div>
     </Form>

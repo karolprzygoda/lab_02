@@ -156,3 +156,21 @@
   display: none;
 }
 
+[data-slot="toast"][data-type="success"] {
+  border-color: var(--notification-success);
+}
+[data-slot="toast"][data-type="success"] [data-slot="toast-title"] {
+  color: var(--notification-success);
+}
+[data-slot="toast"][data-type="error"] {
+  border-color: var(--destructive);
+}
+[data-slot="toast"][data-type="error"] [data-slot="toast-title"] {
+  color: var(--destructive);
+}
+[data-slot="toast"][data-type="info"] {
+  border-color: var(--notification-email);
+}
+[data-slot="toast"][data-type="info"] [data-slot="toast-title"] {
+  color: var(--notification-email);
+}

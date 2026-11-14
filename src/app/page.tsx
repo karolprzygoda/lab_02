@@ -1,3 +1,6 @@
+import { DeliveredNotifications } from "@/components/delivered-notifications"
+import { NotificationDetailDialog } from "@/components/notification-detail-dialog"
+import { NotificationDetails } from "@/components/notification-details"
 import { ChannelStatus } from "@/components/channel-status"
 import { Separator } from "@/components/ui/separator"
 import type { NotificationFiltersQuery } from "@/components/notification-filters"
@@ -8,7 +11,7 @@ import { connection } from "next/server"
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<NotificationFiltersQuery>
+  searchParams: Promise<NotificationFiltersQuery & { notification?: string }>
 }) {
   await connection()
   const query = await searchParams
@@ -17,6 +20,11 @@ export default async function Page({
     repository.list(),
     repository.workers(),
   ])
+  const selected =
+    query.notification && /^[0-9a-f-]{36}$/i.test(query.notification)
+      ? await repository.get(query.notification)
+      : null
+  const selectedHistory = selected ? await repository.history(selected.id) : []
   const items = allItems.filter(
     (item) =>
       (!query.status ||
@@ -29,6 +37,12 @@ export default async function Page({
   return (
     <div className="min-h-screen">
       <main className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-6 px-4 py-8 sm:px-8">
+        <DeliveredNotifications />
+        {selected ? (
+          <NotificationDetailDialog key={selected.id}>
+            <NotificationDetails item={selected} history={selectedHistory} />
+          </NotificationDetailDialog>
+        ) : null}
         <NotificationHistory items={items} query={query} />
         <footer
           className="mt-auto flex flex-col gap-4 pt-6"
