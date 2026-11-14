@@ -16,9 +16,10 @@ export default async function Page({
   await connection()
   const query = await searchParams
   const repository = notifications().repository
-  const [allItems, workers] = await Promise.all([
+  const [allItems, workers, counts] = await Promise.all([
     repository.list(),
     repository.workers(),
+    repository.counts(),
   ])
   const selected =
     query.notification && /^[0-9a-f-]{36}$/i.test(query.notification)
@@ -50,6 +51,9 @@ export default async function Page({
         >
           <Separator />
           <ChannelStatus
+            key={JSON.stringify(counts)}
+            initialCounts={counts}
+            query={query}
             initialWorkers={workers.map(({ channel, active }) => ({
               channel,
               active,

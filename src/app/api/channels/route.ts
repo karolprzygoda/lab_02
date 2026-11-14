@@ -2,9 +2,16 @@ import { notifications } from "@/server/api/context"
 
 export async function GET() {
   try {
-    const workers = await notifications().repository.workers()
+    const repository = notifications().repository
+    const [workers, counts] = await Promise.all([
+      repository.workers(),
+      repository.counts(),
+    ])
     return Response.json(
-      workers.map(({ channel, active }) => ({ channel, active })),
+      {
+        workers: workers.map(({ channel, active }) => ({ channel, active })),
+        counts,
+      },
       {
         headers: { "Cache-Control": "no-store" },
       }
