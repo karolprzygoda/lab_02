@@ -40,7 +40,12 @@ export class NotificationService {
           timezone: data.timezone,
           priority: data.priority,
           scheduled_at: new Date(scheduled),
-          available_at: new Date(nextAllowedTime(scheduled, data.timezone)),
+          available_at: new Date(
+            data.ignoreQuietHours
+              ? scheduled
+              : nextAllowedTime(scheduled, data.timezone)
+          ),
+          ignore_quiet_hours: data.ignoreQuietHours,
           created_at: new Date(now),
           created_timezone: data.createdTimezone,
           simulate_failures: data.simulateFailures,
@@ -80,9 +85,10 @@ export class NotificationService {
       const notification = await tx.notification.findUniqueOrThrow({
         where: { id: rows[0].id },
       })
-      const allowed = notification.forced
-        ? now
-        : nextAllowedTime(now, notification.timezone)
+      const allowed =
+        notification.forced || notification.ignore_quiet_hours
+          ? now
+          : nextAllowedTime(now, notification.timezone)
       if (allowed > now) {
         await tx.notification.update({
           where: { id: notification.id },
@@ -109,7 +115,7 @@ export class NotificationService {
             attempts: attempt,
             status: attempt === 3 ? "failed" : "pending",
             available_at: new Date(
-              notification.forced
+              notification.forced || notification.ignore_quiet_hours
                 ? retryAt
                 : nextAllowedTime(retryAt, notification.timezone)
             ),

@@ -35,6 +35,7 @@ model Notification {
   attempts Int @default(0)
   simulate_failures Int @default(0)
   forced Boolean @default(false)
+  ignore_quiet_hours Boolean @default(false)
   sent_at DateTime? @db.Timestamptz(3)
   delivery Delivery?
   history Attempt[]

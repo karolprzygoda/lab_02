@@ -20,4 +20,4 @@ Projekt umożliwia planowanie i symulowanie doręczeń powiadomień e-mail oraz 
 
 8. **Wymuszenie i anulowanie.** „Wyślij teraz” udostępnia oczekującą wiadomość workerowi natychmiast, pomijając zaplanowany termin i ciszę nocną. Nie zeruje liczby prób. „Anuluj wysyłkę” wyklucza oczekującą wiadomość z dalszej obsługi.
 
-9. **Strefy czasowe i cisza nocna.** Wysyłka jest dozwolona od 08:00 do 22:00 czasu odbiorcy. Terminy nocne przesuwane są na najbliższą 08:00. Reguła jest sprawdzana także po przestoju i podczas ponowień. Nieistniejące lub niejednoznaczne godziny przy zmianie czasu są odrzucane.
+9. **Strefy czasowe i cisza nocna.** Wysyłka jest dozwolona od 08:00 do 22:00 czasu odbiorcy. Terminy nocne przesuwane są na najbliższą 08:00. Reguła jest sprawdzana także po przestoju i podczas ponowień. Opcja „Pomiń ciszę nocną” w formularzu jest domyślnie wyłączona; po włączeniu zachowuje wybrany termin i pomija ciszę nocną także podczas ponowień. Nieistniejące lub niejednoznaczne godziny przy zmianie czasu są odrzucane.

@@ -44,6 +44,10 @@ export const notificationSchema = z
     scheduledLocal: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Podaj datę i godzinę."),
+    ignoreQuietHours: z
+      .union([z.boolean(), z.literal("on")])
+      .default(false)
+      .transform((value) => value === true || value === "on"),
     simulateFailures: z.coerce.number().int().min(0).max(3).default(0),
   })
   .superRefine((data, ctx) => {

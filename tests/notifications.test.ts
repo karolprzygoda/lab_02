@@ -158,6 +158,40 @@ test("cisza nocna po przestoju oraz przy retry", async () => {
   )
 })
 
+test("pomijanie ciszy nocnej zachowuje termin, działa po przestoju i przy retry", async () => {
+  const scheduled = Date.parse("2027-01-05T22:00Z")
+  const normal = await service.create(
+    input({ scheduledLocal: "2027-01-05T23:00", timezone: "Europe/Warsaw" }),
+    now
+  )
+  assert.equal(normal.ignore_quiet_hours, false)
+  assert.equal(normal.available_at, Date.parse("2027-01-06T07:00Z"))
+  for (const value of [true, "on"]) {
+    const item = await service.create(
+      input({
+        scheduledLocal: "2027-01-05T23:00",
+        timezone: "Europe/Warsaw",
+        ignoreQuietHours: value,
+        simulateFailures: 1,
+      }),
+      now
+    )
+    assert.equal(item.forced, false)
+    assert.equal(item.ignore_quiet_hours, true)
+    assert.equal(item.available_at, scheduled)
+    assert.equal(await service.tick("email", scheduled - 1), null)
+    const afterDowntime = scheduled + 60_000
+    assert.equal((await service.tick("email", afterDowntime))?.id, item.id)
+    assert.equal(
+      (await service.repository.get(item.id))?.available_at,
+      afterDowntime + 10_000
+    )
+    assert.equal(await service.tick("email", afterDowntime + 9999), null)
+    await service.tick("email", afterDowntime + 10_000)
+    assert.equal((await service.repository.get(item.id))?.status, "sent")
+  }
+})
+
 test("walidacja", async () => {
   for (const overrides of [
     { title: " " },
@@ -169,6 +203,7 @@ test("walidacja", async () => {
     { priority: "urgent" },
     { channel: "sms" },
     { simulateFailures: 4 },
+    { ignoreQuietHours: "false" },
     { scheduledLocal: "2020-01-01T10:00" },
   ])
     await assert.rejects(() => service.create(input(overrides), now))

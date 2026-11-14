@@ -121,7 +121,9 @@ export function NotificationDetails({
             <p className="text-xs text-muted-foreground">
               {item.forced
                 ? "Wysyłka wymuszona — z pominięciem terminu i ciszy nocnej."
-                : "Ochrona ciszy nocnej: 22:00–08:00 czasu odbiorcy."}
+                : item.ignore_quiet_hours
+                  ? "Cisza nocna pominięta — doręczenie zgodnie z wybranym terminem."
+                  : "Ochrona ciszy nocnej: 22:00–08:00 czasu odbiorcy."}
             </p>
           </section>
           <Separator />

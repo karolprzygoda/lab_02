@@ -7,7 +7,14 @@ import { ActionForm } from "./action-form"
 import { OptionSelect } from "./option-select"
 import { ScheduleField } from "./schedule-field"
 import { TimezoneField } from "./timezone-field"
-import { Field, FieldGroup, FieldLabel } from "./ui/field"
+import { Checkbox } from "./ui/checkbox"
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldContent,
+  FieldDescription,
+} from "./ui/field"
 import { Input } from "./ui/input"
 import { Textarea } from "./ui/textarea"
 import { Alert, AlertTitle, AlertDescription } from "./ui/alert"
@@ -116,22 +123,42 @@ export function NotificationForm() {
           <Moon />
           <AlertTitle>Cisza nocna: 22:00–08:00</AlertTitle>
           <AlertDescription>
-            Wiadomości zaplanowane na noc doręczymy o 08:00 czasu odbiorcy.
+            Domyślnie wiadomości zaplanowane na noc doręczymy o 08:00 czasu
+            odbiorcy. Możesz to zmienić w opcjach symulacji.
           </AlertDescription>
         </Alert>
         <Accordion>
           <AccordionItem value="simulation">
             <AccordionTrigger>Opcje symulacji</AccordionTrigger>
             <AccordionContent keepMounted>
-              <Field>
-                <FieldLabel htmlFor="failures">Początkowe awarie</FieldLabel>
-                <OptionSelect
-                  id="failures"
-                  name="simulateFailures"
-                  options={SIMULATION_FAILURE_OPTIONS}
-                  defaultValue="0"
-                />
-              </Field>
+              <FieldGroup>
+                <Field orientation="horizontal">
+                  <Checkbox
+                    id="ignore-quiet-hours"
+                    name="ignoreQuietHours"
+                    value="on"
+                    defaultChecked={false}
+                  />
+                  <FieldContent>
+                    <FieldLabel htmlFor="ignore-quiet-hours">
+                      Pomiń ciszę nocną
+                    </FieldLabel>
+                    <FieldDescription>
+                      Doręcz w wybranym terminie, również między 22:00 a 08:00
+                      czasu odbiorcy. Dotyczy także ponownych prób.
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="failures">Początkowe awarie</FieldLabel>
+                  <OptionSelect
+                    id="failures"
+                    name="simulateFailures"
+                    options={SIMULATION_FAILURE_OPTIONS}
+                    defaultValue="0"
+                  />
+                </Field>
+              </FieldGroup>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
