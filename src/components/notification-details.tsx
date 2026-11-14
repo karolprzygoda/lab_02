@@ -1,15 +1,8 @@
 import { ScrollArea } from "./ui/scroll-area"
-import {
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "./ui/dialog"
+import { NotificationDetailsContent } from "./notification-detail-dialog"
 import { Badge } from "./ui/badge"
-import { Button } from "./ui/button"
 import { Separator } from "./ui/separator"
-import { ActionForm } from "./action-form"
-import { changeNotification } from "@/server/actions"
+import { NotificationActions } from "./notification-actions"
 import type {
   Notification,
   NotificationRepository,
@@ -37,13 +30,10 @@ export function NotificationDetails({
   history: Awaited<ReturnType<NotificationRepository["history"]>>
 }) {
   return (
-    <DialogContent className="flex max-h-[90dvh] flex-col gap-0 overflow-hidden p-0 text-left sm:max-w-2xl">
-      <DialogHeader className="shrink-0 gap-3 border-b p-6 pr-12">
-        <DialogDescription>Szczegóły powiadomienia</DialogDescription>
-        <DialogTitle className="text-xl leading-snug wrap-break-word">
-          {item.title}
-        </DialogTitle>
-        <div className="flex flex-wrap gap-2">
+    <NotificationDetailsContent
+      title={item.title}
+      badges={
+        <>
           <Badge
             variant="outline"
             data-channel={item.channel}
@@ -66,8 +56,16 @@ export function NotificationDetails({
           >
             {NOTIFICATION_STATUS_LABELS[item.status]}
           </Badge>
-        </div>
-      </DialogHeader>
+        </>
+      }
+      actions={
+        item.status === "pending" ? (
+          <div className="shrink-0 border-t bg-muted/30 p-6">
+            <NotificationActions id={item.id} />
+          </div>
+        ) : null
+      }
+    >
       <ScrollArea className="min-h-0 flex-1 **:data-[slot=scroll-area-viewport]:max-h-[calc(90dvh-19rem)]">
         <div className="flex flex-col gap-6 p-6 pr-8">
           <section className="flex flex-col gap-3" aria-label="Wiadomość">
@@ -173,30 +171,6 @@ export function NotificationDetails({
           </div>
         </div>
       </ScrollArea>
-      {item.status === "pending" ? (
-        <div className="shrink-0 border-t bg-muted/30 p-6">
-          <ActionForm action={changeNotification} className="w-full">
-            <input type="hidden" name="id" value={item.id} />
-            <div className="flex flex-wrap gap-2">
-              <Button type="submit" name="action" value="send-now" size="sm">
-                Wyślij teraz
-              </Button>
-              <Button
-                type="submit"
-                name="action"
-                value="cancel"
-                size="sm"
-                variant="outline"
-              >
-                Anuluj wysyłkę
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              „Wyślij teraz” pomija termin i ciszę nocną odbiorcy.
-            </p>
-          </ActionForm>
-        </div>
-      ) : null}
-    </DialogContent>
+    </NotificationDetailsContent>
   )
 }

@@ -39,7 +39,7 @@ export default async function Page({
       <main className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-6 px-4 py-8 sm:px-8">
         <DeliveredNotifications />
         {selected ? (
-          <NotificationDetailDialog key={selected.id}>
+          <NotificationDetailDialog key={selected.id} linked>
             <NotificationDetails item={selected} history={selectedHistory} />
           </NotificationDetailDialog>
         ) : null}

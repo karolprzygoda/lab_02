@@ -14,11 +14,10 @@ import {
   TableHead,
   TableCell,
 } from "./ui/table"
-import { Dialog, DialogTrigger } from "./ui/dialog"
+import { NotificationDetailDialog } from "./notification-detail-dialog"
 import { notifications } from "@/server/api/context"
 import type { Notification } from "@/server/repositories/notification.repository"
 import { Badge } from "./ui/badge"
-import { Button } from "./ui/button"
 import {
   Empty,
   EmptyHeader,
@@ -160,18 +159,12 @@ export async function NotificationList({ items }: { items: Notification[] }) {
                   {item.attempts} / 3
                 </TableCell>
                 <TableCell data-column="details">
-                  <Dialog>
-                    <DialogTrigger
-                      render={<Button variant="outline" size="sm" />}
-                      aria-label={`Szczegóły powiadomienia do ${item.recipient}`}
-                    >
-                      Szczegóły
-                    </DialogTrigger>
+                  <NotificationDetailDialog recipient={item.recipient}>
                     <NotificationDetails
                       item={item}
                       history={histories[index]}
                     />
-                  </Dialog>
+                  </NotificationDetailDialog>
                 </TableCell>
               </TableRow>
             ))}
