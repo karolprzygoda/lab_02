@@ -1,8 +1,7 @@
 import { NotificationColumns } from "./notification-columns"
 import { NotificationCreate } from "./notification-create"
 import { NotificationForm } from "./notification-form"
-import { RefreshCw } from "lucide-react"
-import { Button } from "./ui/button"
+import { RefreshNotificationsButton } from "./refresh-notifications-button"
 import { Form } from "./ui/form"
 import { refreshNotifications } from "@/server/actions"
 import { NotificationList } from "@/components/notification-list"
@@ -52,10 +51,7 @@ export function NotificationHistory({
         toolbar={
           <>
             <Form action={refreshNotifications}>
-              <Button type="submit" variant="outline">
-                <RefreshCw data-icon="inline-start" />
-                Odśwież statusy
-              </Button>
+              <RefreshNotificationsButton />
             </Form>
           </>
         }
