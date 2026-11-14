@@ -1,4 +1,6 @@
-import { NotificationDetails } from "./notification-details"
+import Link from "next/link"
+import { Button } from "./ui/button"
+import type { NotificationFiltersQuery } from "./notification-filters"
 import { NotificationTime } from "./notification-time"
 import {
   Tooltip,
@@ -14,8 +16,6 @@ import {
   TableHead,
   TableCell,
 } from "./ui/table"
-import { NotificationDetailDialog } from "./notification-detail-dialog"
-import { notifications } from "@/server/api/context"
 import type { Notification } from "@/server/repositories/notification.repository"
 import { Badge } from "./ui/badge"
 import {
@@ -59,7 +59,13 @@ const NOTIFICATION_STATUS_LABELS = {
   cancelled: "Anulowano",
 } as const
 
-export async function NotificationList({ items }: { items: Notification[] }) {
+export function NotificationList({
+  items,
+  query,
+}: {
+  items: Notification[]
+  query: NotificationFiltersQuery
+}) {
   if (!items.length)
     return (
       <Empty className="border">
@@ -75,9 +81,6 @@ export async function NotificationList({ items }: { items: Notification[] }) {
         </EmptyHeader>
       </Empty>
     )
-  const histories = await Promise.all(
-    items.map((item) => notifications().repository.history(item.id))
-  )
   return (
     <TooltipProvider>
       <div className="min-w-0 rounded-xl border">
@@ -102,7 +105,7 @@ export async function NotificationList({ items }: { items: Notification[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map((item, index) => (
+            {items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell data-column="title">
                   <TruncatedCellText value={item.title} />
@@ -159,12 +162,28 @@ export async function NotificationList({ items }: { items: Notification[] }) {
                   {item.attempts} / 3
                 </TableCell>
                 <TableCell data-column="details">
-                  <NotificationDetailDialog recipient={item.recipient}>
-                    <NotificationDetails
-                      item={item}
-                      history={histories[index]}
-                    />
-                  </NotificationDetailDialog>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    nativeButton={false}
+                    render={
+                      <Link
+                        href={{
+                          pathname: "/",
+                          query: {
+                            status: query.status,
+                            channel: query.channel,
+                            notification: item.id,
+                          },
+                        }}
+                        scroll={false}
+                        prefetch={false}
+                      />
+                    }
+                    aria-label={`Szczegóły powiadomienia do ${item.recipient}`}
+                  >
+                    Szczegóły
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

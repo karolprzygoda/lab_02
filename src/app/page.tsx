@@ -43,7 +43,7 @@ export default async function Page({
           initialRevision={notificationRevision(allItems, counts)}
         />
         {selected ? (
-          <NotificationDetailDialog key={selected.id} linked>
+          <NotificationDetailDialog key={selected.id}>
             <NotificationDetails item={selected} history={selectedHistory} />
           </NotificationDetailDialog>
         ) : null}

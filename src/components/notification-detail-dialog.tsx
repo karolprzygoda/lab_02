@@ -11,7 +11,6 @@ import {
 import { useRouter } from "next/navigation"
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -19,7 +18,6 @@ import {
 } from "./ui/dialog"
 import {
   Drawer,
-  DrawerTrigger,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
@@ -36,7 +34,7 @@ export function useCloseNotificationDetails() {
   return useContext(CloseDetailsContext)
 }
 
-// Only selects the initially open overlay for links; trigger visibility is CSS.
+// The table links are server-rendered; this selects the requested overlay.
 function subscribe(callback: () => void) {
   const media = window.matchMedia("(min-width: 768px)")
   media.addEventListener("change", callback)
@@ -45,12 +43,8 @@ function subscribe(callback: () => void) {
 
 export function NotificationDetailDialog({
   children,
-  linked = false,
-  recipient,
 }: {
   children: ReactNode
-  linked?: boolean
-  recipient?: string
 }) {
   const router = useRouter()
   const desktop = useSyncExternalStore(
@@ -58,53 +52,32 @@ export function NotificationDetailDialog({
     () => window.matchMedia("(min-width: 768px)").matches,
     () => null
   )
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [drawerOpen, setDrawerOpen] = useState(false)
-  const [dismissed, setDismissed] = useState(false)
+  const [open, setOpen] = useState(true)
   const close = useCallback(() => {
-    setDialogOpen(false)
-    setDrawerOpen(false)
-    setDismissed(true)
-    if (linked) {
-      const params = new URLSearchParams(window.location.search)
-      params.delete("notification")
-      router.replace(`/?${params}`, { scroll: false })
-    }
-  }, [linked, router])
-  const trigger = (
-    <Button variant="outline" size="sm">
-      Szczegóły
-    </Button>
-  )
+    setOpen(false)
+    const params = new URLSearchParams(window.location.search)
+    params.delete("notification")
+    router.replace(`/?${params}`, { scroll: false })
+  }, [router])
   return (
     <CloseDetailsContext.Provider value={close}>
       <Dialog
-        open={dialogOpen || (linked && !dismissed && desktop === true)}
-        onOpenChange={(next) => (next ? setDialogOpen(true) : close())}
+        open={open && desktop === true}
+        onOpenChange={(next) => {
+          if (!next) close()
+        }}
       >
-        {!linked ? (
-          <DialogTrigger
-            className="hidden md:inline-flex"
-            render={trigger}
-            aria-label={`Szczegóły powiadomienia do ${recipient}`}
-          />
-        ) : null}
         <DetailsKindContext.Provider value="dialog">
           {children}
         </DetailsKindContext.Provider>
       </Dialog>
       <Drawer
-        open={drawerOpen || (linked && !dismissed && desktop === false)}
-        onOpenChange={(next) => (next ? setDrawerOpen(true) : close())}
+        open={open && desktop === false}
+        onOpenChange={(next) => {
+          if (!next) close()
+        }}
         showSwipeHandle
       >
-        {!linked ? (
-          <DrawerTrigger
-            className="md:hidden"
-            render={trigger}
-            aria-label={`Szczegóły powiadomienia do ${recipient}`}
-          />
-        ) : null}
         <DetailsKindContext.Provider value="drawer">
           {children}
         </DetailsKindContext.Provider>

@@ -56,7 +56,7 @@ export function NotificationHistory({
           </>
         }
       >
-        <NotificationList items={items} />
+        <NotificationList items={items} query={query} />
       </NotificationColumns>
     </section>
   )
